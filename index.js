@@ -16,12 +16,14 @@ const yuanToDolarBtn = { text: 'Юань(CNY) у долари(USD) 💸🔋', ca
 const continueOrder = { text: 'Замовити ✅✨', callback_data: 'continueorder'};
 const closeOrder = { text: 'Скасувати ❌🙅‍♂️', callback_data: 'closeorder' };
 const countryUkraineBtn = { text: 'в Україну \🇺🇦', callback_data: 'countryukrainebtn' };
-const countryPolandBtn = { text: 'в Польщу \🇵🇱', callback_data: 'countrypolandbtn' };
-const countryMoldovaBtn = { text: 'в Молдову \🇲🇩', callback_data: 'countrymoldovabtn' };
-const countryLithuaniaBtn = { text: 'в Литву \🇱🇹', callback_data: 'countrylithuaniabtn' };
-const countryCzechiaBtn = { text: 'в Чехію \🇨🇿', callback_data: 'countryczechiabtn'} 
-const countryRomaniaBtn = { text: 'в Румунію \🇷🇴', callback_data: 'countryromaniabtn'}
-const countryGermanyBtn = { text: 'в Німеччину \🇩🇪', callback_data: 'countrygermanybtn' }
+// const countryPolandBtn = { text: 'в Польщу \🇵🇱', callback_data: 'countrypolandbtn' };
+// const countryMoldovaBtn = { text: 'в Молдову \🇲🇩', callback_data: 'countrymoldovabtn' };
+// const countryLithuaniaBtn = { text: 'в Литву \🇱🇹', callback_data: 'countrylithuaniabtn' };
+// const countryCzechiaBtn = { text: 'в Чехію \🇨🇿', callback_data: 'countryczechiabtn'} 
+// const countryRomaniaBtn = { text: 'в Румунію \🇷🇴', callback_data: 'countryromaniabtn'}
+// const countryGermanyBtn = { text: 'в Німеччину \🇩🇪', callback_data: 'countrygermanybtn' }
+const paymentCrypto = { text: 'Оплата криптою 🌐💸', callback_data: 'paymentCrypto' }
+const paymentVisa = { text: 'Оплата картою ✅💸', callback_data: 'paymentVisa' }
 
 // bot.sendMessage(963946101, 'ti lox')
 
@@ -83,7 +85,6 @@ var orderNP = {
     email: '',
     country: '',
     city: '',
-    region: '',
     numberNP: '',
 }
 // Object for payment
@@ -92,6 +93,7 @@ var payment = {
     crypto: '',
     visa: 0,
     comment: '',
+    status: '',
 }
 const orderButton = {
     reply_markup: JSON.stringify({
@@ -105,11 +107,20 @@ const orderCountry = {
     reply_markup: JSON.stringify({
         inline_keyboard: [
             [countryUkraineBtn],
-            [countryGermanyBtn, countryPolandBtn],
-            [countryMoldovaBtn, countryLithuaniaBtn],
-            [countryCzechiaBtn, countryRomaniaBtn],
+            // [countryGermanyBtn, countryPolandBtn],
+            // [countryMoldovaBtn, countryLithuaniaBtn],
+            // [countryCzechiaBtn, countryRomaniaBtn],
         ],
         resize_keyboard: true,
+    })
+}
+const paymentButton = {
+    reply_markup: JSON.stringify({
+        inline_keyboard: [
+            [paymentCrypto],
+            [paymentVisa]
+        ],
+        reply_keyboard: true,
     })
 }
 
@@ -175,7 +186,7 @@ const handleCallbackQuery = async (query) => {
     if (data === 'yuanToDolar') {await bot.sendMessage(chatId, `Введіть суму у юанях, для переведення їх у долари 📦💸`); coursesMessageStatus = 'active';}
     if (data === 'calculate') {await bot.sendMessage(chatId, `Введіть назву товару із Poizon 📦🚀`);calculateStatus = 'active_name';}
     if (data === 'continueorder') {
-        bot.sendMessage(chatId, `У яку країну бажаєте зробити замовлення?`, orderCountry);
+        await bot.sendMessage(chatId, `Відправка новою поштою. У яку країну бажаєте зробити замовлення? 👻📦`, orderCountry);
     }
     if (data === 'closeorder') {
         await bot.sendMessage(chatId, `Ми видалили дані замовлення 🗑️🪫`)
@@ -186,6 +197,18 @@ const handleCallbackQuery = async (query) => {
             size: '',
             photo: '',
         }
+    }
+    if (data === 'countryukrainebtn') {
+        orderNP.country = 'Ukrane'
+        await bot.sendMessage(chatId, 'Введіть ФІБ (фамілію, ім\'я, по-батькові)')
+        orderStatus = 'active_fib'
+        data != 'countryukrainebtn'
+    }
+    if (data === 'paymentCrypto'){
+        await bot.sendMessage(chatId, 'Оплата криптовалютою поки що не доступна 🌐❌')
+    }
+    if (data === 'paymentVisa') {
+        await bot.sendMessage(chatId, 'Оплата картою поки що не доступна 🌐❌')
     }
 }
 
@@ -275,6 +298,7 @@ const handleCalculateData = async (msg) => {
 const handleOrder = async (msg) => {
     const chatId = msg.chat.id
     const message = msg.text
+    console.log(msg)
     if(orderStatus !== 'deactive') {
         switch (orderStatus) {
             case 'active_link':
@@ -308,9 +332,28 @@ const handleOrder = async (msg) => {
                 \nВага посилки: ${order.weight} ⚖️📤
                 \nРозмір: ${order.size} ✏️🔥
                 \nСкріншот товару із Poizon ${order.photo} 📷✨`, orderButton)
+            case 'active_fib':
+                if(orderStatus === 'active_fib'){
+                    orderNP.fib = message
+                    await bot.sendMessage(chatId, 'Введіть номер телефону 💬')
+                    return orderStatus = 'active_tel'
+                }
+            case 'active_tel':
+                orderNP.tel = message
+                await bot.sendMessage(chatId, 'Місто та область доставки 🌐✨')
+                return orderStatus = 'active_city'
+            case 'active_city':
+                orderNP.city = message
+                await bot.sendMessage(chatId, 'Номер нової пошти 🎯💬')
+                return orderStatus = 'active_numberNP'
+            case 'active_numberNP':
+                if(typeof parseFloat(message) === 'number' && !isNaN(parseFloat(message))) {
+                    orderNP.numberNP = message
+                    await bot.sendMessage(chatId, 'Оплата доставки 📦✏️', paymentButton)    
+                }
         }
     }
-    return orderStatus
+    return orderStatus = 'deactive'
 }
 
 // Функція для налаштування бота і реєстрації команд
