@@ -1,7 +1,4 @@
 /node_modules/
-.env
-users.db
 .git
-orders.db
 notion.txt
 whodo.txt
