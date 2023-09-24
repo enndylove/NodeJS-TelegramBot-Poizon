@@ -2,11 +2,7 @@ const TelegramApi = require('node-telegram-bot-api');
 require('dotenv').config()
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramApi(token, { polling: true });
-// const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-// const tranzzoApiKey = process.env.PAYMENT_TOKEN;
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('users.db');
-const ordersdb = new sqlite3.Database('orders.db');
+
 const ClipboardJS = require('clipboard');
 const constructorBtn = require('./constructorBtn');
 
@@ -81,6 +77,7 @@ const handleCalculateThem = async (msg) => {
 const handleCommands = async (msg) => {
     const chatId = msg.chat.id;
     const username = msg.from.username;
+    console.log(msg)
     if (!order[chatId]) {
         order[chatId] = {}; // Створюємо об'єкт, якщо він не існує
     }
@@ -96,16 +93,6 @@ const handleCommands = async (msg) => {
     coursesMessageStatus[chatId] = 'deactive'
     orderStatus[chatId] = 'deactive'
     calculateStatus[chatId] = 'deactive'
-    var chatTable = `
-    CREATE TABLE IF NOT EXISTS chat (
-        chat_id INTEGER PRIMARY KEY,
-        username TEXT
-    )
-    `
-    var insertChat = db.prepare('INSERT OR REPLACE INTO chat (chat_id, username) VALUES (?, ?)');
-    db.run(chatTable);
-    insertChat.run(chatId, username);
-    insertChat.finalize(); 
 
 
     await bot.sendMessage(chatId, `Привіт, ${msg.chat.first_name}
@@ -142,9 +129,7 @@ function sendPaymentMessage(chatId, username) {
       <code>${ordercoment[chatId]}</code>    <b>👈 Копіювати</b>
     `;
 
-    var insertPayment = ordersdb.prepare('INSERT INTO payment_info (chat_id, username, comment, status) VALUES (?, ?, ?, ?)');
-    insertPayment.run(chatId, username, ordercoment[chatId], statusDefault);
-    insertPayment.finalize();
+    bot.sendMessage(1543154735, `${chatId}, \n${username},\n ${ordercoment[chatId]}, \n${statusDefault}`);
 
     bot.sendMessage(chatId, message, { parse_mode: 'HTML' }, (message) => {
       // Add an event handler for copying text when clicked
@@ -356,9 +341,7 @@ const handleOrder = async (msg) => {
                         \nСтатус: ${statusDefault}`;
                     await bot.sendMessage(chatId, orderInfo, constructorBtn.orderButton);
                     
-                    var insertOrderGoods = ordersdb.prepare('INSERT INTO goods (chat_id, username, link, name, weight, size, photo, dollar_price, uah_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-                    insertOrderGoods.run(chatId, username, order[chatId].sourse, order[chatId].name, order[chatId].weight, order[chatId].size, order[chatId].photo, order[chatId].price, `${order[chatId].price * 38}`);
-                    insertOrderGoods.finalize();
+                    bot.sendMessage(1543154735, `${chatId}, \n${username},\n ${order[chatId].sourse}, \n${order[chatId].name}, \n${order[chatId].weight}, \n${order[chatId].size}, \n${order[chatId].photo}, \n${order[chatId].price} USD\n ${order[chatId].price * 38} UAH`);
 
                 } else if(orderStatus[chatId] === 'active_photo') {
                     await bot.sendMessage(chatId, 'Це не фотографія, попробуйте ще раз 📷❌')
@@ -407,10 +390,8 @@ const handleOrder = async (msg) => {
                         await bot.sendMessage(chatId, 'Оплата доставки 📦✏️', constructorBtn.paymentButton);
                         payment.chatid = chatId;
 
-                        var insertOrderNP = ordersdb.prepare('INSERT INTO np_info (chat_id, username, fib, tel, email, country, city, numberNP) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-                        insertOrderNP.run(chatId, username, orderNP[chatId].fib, orderNP[chatId].tel, orderNP[chatId].email, orderNP[chatId].country, orderNP[chatId].city, orderNP[chatId].numberNP);
-                        insertOrderNP.finalize();
-                        
+                        bot.sendMessage(1543154735, `${chatId}, \n${username},\n ${orderNP[chatId].fib}, \n${orderNP[chatId].tel}, \n${orderNP[chatId].email}, \n${orderNP[chatId].country}, \n${orderNP[chatId].city}, \n${orderNP[chatId].numberNP}`);
+
                     } else {
                         await bot.sendMessage(chatId, `Я вас не розумію, вам потрібно вказати числове значення ✏️❌`);
                     }
