@@ -83,7 +83,7 @@ const handleCalculateThem = async (msg) => {
 const handleCommands = async (msg) => {
     const chatId = msg.chat.id;
     const username = msg.from.username;
-    console.log(msg)
+
     if (!order[chatId]) {
         order[chatId] = {}; // Створюємо об'єкт, якщо він не існує
     }
@@ -197,6 +197,7 @@ const handleCallbackQuery = async (query) => {
 const handleMessageCourse = async (msg) => {
     const chatId = msg.chat.id
     const message = msg.text
+    console.log(msg)
     const number = parseInt(message)
     if (coursesMessageStatus[chatId] === 'active' && typeof parseFloat(message) === 'number' && !isNaN(parseFloat(message))) {
         let result = number * 0.14
