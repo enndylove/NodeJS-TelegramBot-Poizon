@@ -1,11 +1,11 @@
 const TelegramApi = require('node-telegram-bot-api');
 require('dotenv').config()
-const token = "6648805399:AAEQURa_YKo-G6l4SJmcOpBJ_-i0tpWvy0M";
+const token = process.env.BOT_TOKEN
 const bot = new TelegramApi(token, { polling: true });
 
 const ClipboardJS = require('clipboard');
 const constructorBtn = require('./constructorBtn');
-
+const adminChatId = process.env.ADMIN_CHAT_ID;
 var coursesMessageStatus = {};
 
 //  Object for calculate data   
@@ -131,11 +131,11 @@ function sendPaymentMessage(chatId, username) {
     // const username = msg.chat.id;
     const message = `
       <b>Оплата по номеру карти ⌛💳</b>
-      <code>5375411418811043</code>    <b>👈 Копіювати</b>\n<b>ОБОВ'ЯЗКОВИЙ коментарій до оплати 💬✏️</b>
+      <code>${process.env.CARD_NUMBER}</code>    <b>👈 Копіювати</b>\n<b>ОБОВ'ЯЗКОВИЙ коментарій до оплати 💬✏️</b>
       <code>${ordercoment[chatId]}</code>    <b>👈 Копіювати</b>
     `;
 
-    bot.sendMessage(1543154735, `Чат айді замовника: ${chatId} 🚀💬 \nКонтакт замовника: ${username} 👈✨\nКоментарій до оплати: ${ordercoment[chatId]} 📤✏️\nСтатус оплати: ${statusDefault} 📧📶`);
+    bot.sendMessage(adminChatId, `Чат айді замовника: ${chatId} 🚀💬 \nКонтакт замовника: ${username} 👈✨\nКоментарій до оплати: ${ordercoment[chatId]} 📤✏️\nСтатус оплати: ${statusDefault} 📧📶`);
 
     bot.sendMessage(chatId, message, { parse_mode: 'HTML' }, (message) => {
       // Add an event handler for copying text when clicked
@@ -348,7 +348,7 @@ const handleOrder = async (msg) => {
                         \nСтатус: ${statusDefault}`;
                     await bot.sendMessage(chatId, orderInfo, constructorBtn.orderButton);
                     
-                    bot.sendMessage(1543154735, `Чат айді замовника: ${chatId} 🚀💬 \nКонтакти замовника:${username} ☎️📶\nСилка на товар: ${order[chatId].sourse} 🔗📦 \nНазва товару:${order[chatId].name} 🌐✏️ \nВага товару: ${order[chatId].weight} ⚖️📦 \nРозмір товару: ${order[chatId].size} 💢💬 \nСкріншот товару: ${order[chatId].photo} 📷✨ \nЦіна у доларах: ${order[chatId].price} USD 💸🌐\nЦіна у гривнях: ${order[chatId].price * 38} UAH 💸✨`);
+                    bot.sendMessage(adminChatId, `Чат айді замовника: ${chatId} 🚀💬 \nКонтакти замовника:${username} ☎️📶\nСилка на товар: ${order[chatId].sourse} 🔗📦 \nНазва товару:${order[chatId].name} 🌐✏️ \nВага товару: ${order[chatId].weight} ⚖️📦 \nРозмір товару: ${order[chatId].size} 💢💬 \nСкріншот товару: ${order[chatId].photo} 📷✨ \nЦіна у доларах: ${order[chatId].price} USD 💸🌐\nЦіна у гривнях: ${order[chatId].price * 38} UAH 💸✨`);
 
                 } else if(orderStatus[chatId] === 'active_photo') {
                     await bot.sendMessage(chatId, 'Це не фотографія, попробуйте ще раз 📷❌')
@@ -397,7 +397,7 @@ const handleOrder = async (msg) => {
                         await bot.sendMessage(chatId, 'Оплата доставки 📦✏️', constructorBtn.paymentButton);
                         payment.chatid = chatId;
 
-                        bot.sendMessage(1543154735, `Чат айді замовника: ${chatId} 👻📧 \nКонтакти замовника: ${username} ☎️📶 \nФІБ замовника: ${orderNP[chatId].fib} 💳✏️ \nНомер телефону замовника: ${orderNP[chatId].tel} ☎️🌐 \nЕлектронна пошта замовника: ${orderNP[chatId].email} 👈💬 \nКраїна доставки: ${orderNP[chatId].country} ✏️✨ \nРегіон призначення: ${orderNP[chatId].city} 📤🚀 \n Номер нової пошти: ${orderNP[chatId].numberNP} 📑📦`);
+                        bot.sendMessage(adminChatId, `Чат айді замовника: ${chatId} 👻📧 \nКонтакти замовника: ${username} ☎️📶 \nФІБ замовника: ${orderNP[chatId].fib} 💳✏️ \nНомер телефону замовника: ${orderNP[chatId].tel} ☎️🌐 \nЕлектронна пошта замовника: ${orderNP[chatId].email} 👈💬 \nКраїна доставки: ${orderNP[chatId].country} ✏️✨ \nРегіон призначення: ${orderNP[chatId].city} 📤🚀 \n Номер нової пошти: ${orderNP[chatId].numberNP} 📑📦`);
 
                     } else {
                         await bot.sendMessage(chatId, `Я вас не розумію, вам потрібно вказати числове значення ✏️❌`);
