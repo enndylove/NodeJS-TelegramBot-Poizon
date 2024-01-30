@@ -1,4 +1,4 @@
-# NodeJS | TelegramBot - Poizon <img src="https://img.shields.io/static/v1?label=🤖 Telegram Bot&message=Trider Graph 📈&color=ffffff" />
+# NodeJS | TelegramBot - Poizon <img src="https://img.shields.io/static/v1?label=🤖 Telegram Bot&message=Poizon 📦&color=ffffff" />
 
 ![](https://i.ibb.co/WyBPTqz/300x300-logo.png)
 
